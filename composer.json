@@ -1,0 +1,19 @@
+{
+    "name": "halan/htdocs",
+    "autoload": {
+        "psr-4": {
+            "Halan\\Htdocs\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "alisonnRB",
+            "email": "alisonrbjs@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.9",
+        "vlucas/phpdotenv": "^5.5",
+        "cboden/ratchet": "^0.4.4"
+    }
+}
