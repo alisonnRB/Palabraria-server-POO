@@ -1,16 +1,12 @@
 <?php
 
-include_once '../conexao/conexao.php';
+require_once '../conexao/conexao.php';
 
 require_once "../../vendor/autoload.php";
 use \Firebase\JWT\JWT;
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__FILE__, 3));
 $dotenv->load();
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: *');
-header('Access-Control-Allow-Headers: *');
 
 
 class Login extends Connection
@@ -30,25 +26,26 @@ class Login extends Connection
         $stmt = $this->conect->prepare("SELECT user, senha, tipo FROM usuarios WHERE user = :user");
         $stmt->execute([":user" => $this->getUser()]);
         $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt = $stmt[0];
 
-        if ($stmt) {
+        if ($stmt && $stmt[0]) {
+            $stmt = $stmt[0];
             if (password_verify($this->getSenha(), $stmt['senha'])) {
                 $token = $this->geraToken($stmt['user'], $stmt['tipo']);
                 $erro = new Respost(200, true, $token);
                 $erro->Return();
             } else {
-                $erro = new Respost(400, false, "As senhas não coicidem");
+                $erro = new Respost(200, false, "As senhas não coicidem!!");
                 $erro->Return();
             }
 
         } else {
-            $erro = new Respost(400, false, 'Usuário não cadastrado!');
+            $erro = new Respost(200, false, 'Usuário não cadastrado!!');
             $erro->Return();
         }
     }
 
-    private function geraToken($user, $tipo){
+    private function geraToken($user, $tipo)
+    {
 
         $payload = array(
             "exp" => time() + 86200,
@@ -72,7 +69,7 @@ class Login extends Connection
             $value = strip_tags($value);
             $this->user = $value;
         } else {
-            $erro = new Respost(400, false, 'o campo de usuario deve ser preenchido');
+            $erro = new Respost(200, false, 'O campo de usuario deve ser preenchido!!');
             $erro->Return();
         }
     }
@@ -88,11 +85,9 @@ class Login extends Connection
             $value = strip_tags($value);
             $this->senha = $value;
         } else {
-            $erro = new Respost(400, false, 'o campo de senha deve ser preenchido');
+            $erro = new Respost(200, false, 'O campo de senha deve ser preenchido!!');
             $erro->Return();
         }
     }
 }
 
-$login = new Login('admin', 'admin');
-$login->Verify_user();

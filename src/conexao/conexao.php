@@ -1,6 +1,6 @@
 <?php
 
-include_once '../resposta/resposta.php';
+require_once '../resposta/resposta.php';
 
 class Connection extends Respost
 {
