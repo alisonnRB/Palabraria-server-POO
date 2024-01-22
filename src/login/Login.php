@@ -21,7 +21,23 @@ class Login extends Connection
 
     public function Verify_user()
     {
-        //this->conect
+        $stmt = $this->conect->prepare("SELECT user, senha, tipo FROM usuarios WHERE user = :user");
+        $stmt->execute([":user" => $this->getUser()]);
+        $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $stmt[0];
+
+        if ($stmt) {
+            if (password_verify($this->getSenha(), $stmt['senha'])) {
+                //TODO iniciar token
+            } else {
+                $erro = new Respost(400, false, "As senhas não coicidem");
+                $erro->Return();
+            }
+
+        } else {
+            $erro = new Respost(400, false, 'Usuário não cadastrado!');
+            $erro->Return();
+        }
     }
 
     private function getUser()
@@ -47,10 +63,8 @@ class Login extends Connection
 
     private function setSenha($value)
     {
-
         if ($value) {
             $value = strip_tags($value);
-            $value = (password_hash($value, PASSWORD_DEFAULT));
             $this->senha = $value;
         } else {
             $erro = new Respost(400, false, 'o campo de senha deve ser preenchido');
@@ -59,5 +73,5 @@ class Login extends Connection
     }
 }
 
-$login = new Login('oi', 'oko');
+$login = new Login('admin', 'admin');
 $login->Verify_user();
