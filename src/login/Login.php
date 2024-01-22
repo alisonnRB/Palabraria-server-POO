@@ -2,6 +2,12 @@
 
 include_once '../conexao/conexao.php';
 
+require_once "../../vendor/autoload.php";
+use \Firebase\JWT\JWT;
+
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__FILE__, 3));
+$dotenv->load();
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: *');
 header('Access-Control-Allow-Headers: *');
@@ -28,7 +34,9 @@ class Login extends Connection
 
         if ($stmt) {
             if (password_verify($this->getSenha(), $stmt['senha'])) {
-                //TODO iniciar token
+                $token = $this->geraToken($stmt['user'], $stmt['tipo']);
+                $erro = new Respost(200, true, $token);
+                $erro->Return();
             } else {
                 $erro = new Respost(400, false, "As senhas não coicidem");
                 $erro->Return();
@@ -38,6 +46,19 @@ class Login extends Connection
             $erro = new Respost(400, false, 'Usuário não cadastrado!');
             $erro->Return();
         }
+    }
+
+    private function geraToken($user, $tipo){
+
+        $payload = array(
+            "exp" => time() + 86200,
+            "iat" => time(),
+            "user" => $user,
+            "tipo" => $tipo
+        );
+
+        $token = JWT::encode($payload, $_ENV['KEY'], 'HS256');
+        return $token;
     }
 
     private function getUser()
