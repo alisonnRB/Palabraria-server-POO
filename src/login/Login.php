@@ -4,9 +4,9 @@ require_once '../conexao/conexao.php';
 
 require_once "../../vendor/autoload.php";
 use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__FILE__, 3));
-$dotenv->load();
+
 
 
 class Login extends Connection
@@ -14,11 +14,29 @@ class Login extends Connection
     protected $user;
     protected $senha;
 
-    public function __construct($user = false, $senha = false)
+    private $key;
+
+    public function __construct($user = false, $senha = false, $token = null)
     {
-        $this->setUser($user);
-        $this->setSenha($senha);
         $this->createConnection();
+        $this->key = Dotenv\Dotenv::createImmutable(dirname(__FILE__, 3));
+        $this->key->load();
+
+        if ($token) {
+            $infos = $this->decodeToken($token);
+            if ($infos) {
+                $erro = new Respost(200, true, array('user' => $infos->user, 'tipo' => $infos->tipo));
+                $erro->Return();
+            } else {
+                $erro = new Respost(401, false);
+                $erro->Return();
+            }
+
+        } else {
+            $this->setUser($user);
+            $this->setSenha($senha);
+        }
+
     }
 
     public function Verify_user()
@@ -56,6 +74,20 @@ class Login extends Connection
 
         $token = JWT::encode($payload, $_ENV['KEY'], 'HS256');
         return $token;
+    }
+
+    private function decodeToken($token)
+    {
+        try {
+            $decoded = JWT::decode($token, new Key($_SERVER['KEY'], 'HS256'));
+            return $decoded;
+        } catch (Throwable $e) {
+            if ($e->getMessage() == 'Expired token') {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     private function getUser()
