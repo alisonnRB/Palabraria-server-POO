@@ -1,7 +1,7 @@
 <?php
 
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET');
+header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 include_once '../login/Login.php';
@@ -16,6 +16,7 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
 
     $token = str_replace('Bearer ', '', $token);
     $login = new Login(false, false, $token);
+    $login->Verify_auth();
 
 } else {
     $login = new Login($body->user, $body->senha);

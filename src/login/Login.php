@@ -13,7 +13,7 @@ class Login extends Connection
 {
     protected $user;
     protected $senha;
-
+    protected $auth;
     private $key;
 
     public function __construct($user = false, $senha = false, $token = null)
@@ -25,8 +25,7 @@ class Login extends Connection
         if ($token) {
             $infos = $this->decodeToken($token);
             if ($infos) {
-                $erro = new Respost(200, true, array('user' => $infos->user, 'tipo' => $infos->tipo));
-                $erro->Return();
+                $this->setAuth($infos);
             } else {
                 $erro = new Respost(401, false);
                 $erro->Return();
@@ -58,6 +57,17 @@ class Login extends Connection
 
         } else {
             $erro = new Respost(200, false, 'Usuário não cadastrado!!');
+            $erro->Return();
+        }
+    }
+
+    public function Verify_auth()
+    {
+        if ($this->getAuth()) {
+            $erro = new Respost(200, true, array('user' => $this->getAuth()->user, 'tipo' => $this->getAuth()->tipo));
+            $erro->Return();
+        } else {
+            $erro = new Respost(401, false);
             $erro->Return();
         }
     }
@@ -120,6 +130,16 @@ class Login extends Connection
             $erro = new Respost(200, false, 'O campo de senha deve ser preenchido!!');
             $erro->Return();
         }
+    }
+
+    public function getAuth()
+    {
+        return $this->auth;
+    }
+
+    private function setAuth($valor)
+    {
+        $this->auth = $valor;
     }
 }
 
