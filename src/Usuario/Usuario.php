@@ -12,28 +12,28 @@ class Usuario
     protected $auth;
     protected $id;
 
-    private $list = array(
+    protected $list = array(
         "admin" => 1,
         "moderador" => 2,
-        "instituição" => 3
+        "instituicao" => 3
     );
     public function __construct($method, $user = null, $senha = null, $permition = null, Login $auth, $id = 0)
     {
         $this->setMethod($method);
         $this->setAuth($auth);
+        $this->setPermition($permition);
+        $this->setId($id);
 
-        if($this->list[$this->getAuth()->tipo] >=3){
+        if ($this->list[$this->getAuth()->tipo] >= 3) {
             $erro = new Respost(200, false, 'Apenas o adm e moderadores podem cadastrar usuários!!');
             $erro->Return();
-        }else if($this->getAuth()->tipo == 'moderador' && $this->list[$this->getPermition()] != 3){
+        } else if ($this->getAuth()->tipo == 'moderador' && $this->list[$this->getPermition()] != 3) {
             $erro = new Respost(200, false, 'Moderadores não podem criar novos moderadores ou admins');
             $erro->Return();
-        }else if($this->getAuth()->tipo == 'instituição'){
+        } else if ($this->getAuth()->tipo == 'instituição') {
             $erro = new Respost(200, false, 'Você não tem permissão para cadastrar');
             $erro->Return();
         }
-        $this->setPermition($permition);
-        $this->setId($id);
 
         if ($this->getMethod() == 'POST' || $this->getMethod() == 'PUT') {
             if (!$user && !$senha) {

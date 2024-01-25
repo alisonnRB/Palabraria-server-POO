@@ -2,10 +2,12 @@
 
 include_once '../Usuario/Usuario.php';
 include_once '../Cadastro/cadastro.php';
+include_once '../resposta/resposta.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, PATCH');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
 
 $token = $_SERVER['HTTP_AUTHORIZATION'];
 $method = $_SERVER['REQUEST_METHOD'];
@@ -25,3 +27,4 @@ if ($method == 'POST' || $method == 'PUT' || $method == 'PATCH') {
 }
 
 $cadastrar = new Cadastro($user);
+$cadastrar->Decide_user();

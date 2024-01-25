@@ -40,14 +40,14 @@ class Login extends Connection
 
     public function Verify_user()
     {
-        $stmt = $this->conect->prepare("SELECT user, senha, tipo FROM usuarios WHERE user = :user");
+        $stmt = $this->conect->prepare("SELECT id, user, senha, tipo FROM usuarios WHERE user = :user");
         $stmt->execute([":user" => $this->getUser()]);
         $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($stmt && $stmt[0]) {
             $stmt = $stmt[0];
             if (password_verify($this->getSenha(), $stmt['senha'])) {
-                $token = $this->geraToken($stmt['user'], $stmt['tipo']);
+                $token = $this->geraToken($stmt['user'], $stmt['tipo'], $stmt['id']);
                 $erro = new Respost(200, true, $token);
                 $erro->Return();
             } else {
@@ -64,7 +64,7 @@ class Login extends Connection
     public function Verify_auth()
     {
         if ($this->getAuth()) {
-            $erro = new Respost(200, true, array('user' => $this->getAuth()->user, 'tipo' => $this->getAuth()->tipo));
+            $erro = new Respost(200, true, array('user' => $this->getAuth()->user, 'tipo' => $this->getAuth()->tipo, 'id' => $this->getAuth()->id));
             $erro->Return();
         } else {
             $erro = new Respost(401, false);
@@ -72,14 +72,15 @@ class Login extends Connection
         }
     }
 
-    private function geraToken($user, $tipo)
+    private function geraToken($user, $tipo, $id)
     {
 
         $payload = array(
             "exp" => time() + 86200,
             "iat" => time(),
             "user" => $user,
-            "tipo" => $tipo
+            "tipo" => $tipo,
+            "id" => $id
         );
 
         $token = JWT::encode($payload, $_ENV['KEY'], 'HS256');
