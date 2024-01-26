@@ -25,6 +25,7 @@ class Cadastro extends Login
         } else if ($this->getUsuario()->getMethod() == 'PUT') {
         } else if ($this->getUsuario()->getMethod() == 'PATCH') {
         } else if ($this->getUsuario()->getMethod() == 'GET') {
+            $this->search_user();
         } else if ($this->getUsuario()->getMethod() == 'DELETE') {
         }
     }
@@ -57,6 +58,25 @@ class Cadastro extends Login
         } catch (PDOException $e) {
             $erro = new Respost(200, false, "não foi possivel cadastrar!!");
             $erro->Return();
+        }
+    }
+
+    private function search_user()
+    {
+        if ($this->getUsuario()->getId() == 0) {
+            try {
+                $stmt = $this->conect->prepare('SELECT id, user, tipo FROM usuarios');
+                $stmt->execute();
+                $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $erro = new Respost(200, true, $stmt);
+                $erro->Return();
+
+            } catch (PDOException $e) {
+                $erro = new Respost(200, false, "não foi possivel Buscar!!");
+                $erro->Return();
+            }
+
         }
     }
 
