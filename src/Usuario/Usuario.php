@@ -12,7 +12,7 @@ class Usuario
     protected $auth;
     protected $id;
 
-    protected $list = array(
+    public $list = array(
         "admin" => 1,
         "moderador" => 2,
         "instituicao" => 3
@@ -58,7 +58,7 @@ class Usuario
                 $erro = new Respost(200, false, 'O campo de senha deve ser preenchido!!');
                 $erro->Return();
             }
-            
+
         } else if ($this->getMethod() == 'PATCH') {
             if (!$user && !$senha) {
                 $erro = new Respost(200, false, 'Os campos devem ser preenchidos!!');
@@ -67,6 +67,13 @@ class Usuario
                 $this->setUser($user);
                 $this->setSenha($senha);
             }
+        } else if ($this->getMethod() == 'DELETE') {
+
+            if ($this->list[$this->getAuth()->tipo] >= 3) {
+                $erro = new Respost(200, false, 'Apenas o adm e moderadores podem excluir usuários!!');
+                $erro->Return();
+            }
+
         }
     }
 

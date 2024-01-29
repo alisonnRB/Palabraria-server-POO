@@ -23,7 +23,7 @@ if ($method == 'POST' || $method == 'PUT' || $method == 'PATCH') {
 } else if ($method == 'GET') {
     $user = new Usuario($method, null, null, null, $login, $_GET['id']);
 } else if ($method == 'DELETE') {
-    $user = new Usuario($method, null, null, null, $login);
+    $user = new Usuario($method, null, null, null, $login, $_GET['id']);
 }
 
 $cadastrar = new Cadastro($user);

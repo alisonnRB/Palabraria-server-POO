@@ -27,6 +27,24 @@ class Cadastro extends Login
         } else if ($this->getUsuario()->getMethod() == 'GET') {
             $this->search_user();
         } else if ($this->getUsuario()->getMethod() == 'DELETE') {
+            $id = $this->getUsuario()->getId();
+
+            $stmt = $this->conect->prepare("SELECT tipo FROM usuarios WHERE id = :id");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (($stmt[0] && $stmt[0]['tipo'])) {
+                if ($this->getUsuario()->list[$this->getUsuario()->getAuth()->tipo] < $this->getUsuario()->list[$stmt[0]['tipo']]) {
+                    $this->delete_user();
+                } else if ($this->getUsuario()->list[$this->getUsuario()->getAuth()->tipo] == $this->getUsuario()->list[$stmt[0]['tipo']]) {
+                    $erro = new Respost(200, false, "Você não pode excluir alguem com mesmo nível!!");
+                    $erro->Return();
+                } else {
+                    $erro = new Respost(200, false, "Você não tem permissão!!");
+                    $erro->Return();
+                }
+            }
         }
     }
 
@@ -81,6 +99,24 @@ class Cadastro extends Login
             }
 
         }
+    }
+
+    private function delete_user()
+    {
+        try {
+            $id = $this->getUsuario()->getId();
+            $stmt = $this->conect->prepare("DELETE FROM usuarios WHERE id = :id");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            $erro = new Respost(200, true);
+            $erro->Return();
+
+        } catch (PDOException $e) {
+            $erro = new Respost(200, false, "não foi possivel cadastrar!!");
+            $erro->Return();
+        }
+
     }
 
     private function Code_pass($value)
