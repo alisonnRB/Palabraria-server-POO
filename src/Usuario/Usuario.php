@@ -24,18 +24,22 @@ class Usuario
         $this->setPermition($permition);
         $this->setId($id);
 
-        if ($this->list[$this->getAuth()->tipo] >= 3) {
-            $erro = new Respost(200, false, 'Apenas o adm e moderadores podem cadastrar usuários!!');
-            $erro->Return();
-        } else if ($this->getAuth()->tipo == 'moderador' && $this->list[$this->getPermition()] != 3) {
-            $erro = new Respost(200, false, 'Moderadores não podem criar novos moderadores ou admins');
-            $erro->Return();
-        } else if ($this->getAuth()->tipo == 'instituição') {
-            $erro = new Respost(200, false, 'Você não tem permissão para cadastrar');
-            $erro->Return();
-        }
+
 
         if ($this->getMethod() == 'POST' || $this->getMethod() == 'PUT') {
+
+            if ($this->list[$this->getAuth()->tipo] >= 3) {
+                $erro = new Respost(200, false, 'Apenas o adm e moderadores podem cadastrar ou modificar usuários!!');
+                $erro->Return();
+            } else if ($this->getAuth()->tipo == 'moderador' && $this->list[$this->getPermition()] != 3) {
+                $erro = new Respost(200, false, 'Moderadores não podem criar ou modificar novos moderadores ou admins');
+                $erro->Return();
+            } else if ($this->getAuth()->tipo == 'instituição') {
+                $erro = new Respost(200, false, 'Você não tem permissão para isso!');
+                $erro->Return();
+            }
+
+
             if (!$user && !$senha) {
                 $erro = new Respost(200, false, 'Os campos devem ser preenchidos!!');
                 $erro->Return();
@@ -45,12 +49,16 @@ class Usuario
                 $erro = new Respost(200, false, 'O campo de usuario deve ser preenchido!!');
                 $erro->Return();
             }
+
+
+
             if ($senha) {
                 $this->setSenha($senha);
             } else {
                 $erro = new Respost(200, false, 'O campo de senha deve ser preenchido!!');
                 $erro->Return();
             }
+            
         } else if ($this->getMethod() == 'PATCH') {
             if (!$user && !$senha) {
                 $erro = new Respost(200, false, 'Os campos devem ser preenchidos!!');

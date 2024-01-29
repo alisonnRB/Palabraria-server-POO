@@ -55,6 +55,9 @@ class Cadastro extends Login
             $stmt->bindParam(":cadastrante", $cadastrante);
             $stmt->execute();
 
+            $erro = new Respost(200, true);
+            $erro->Return();
+
         } catch (PDOException $e) {
             $erro = new Respost(200, false, "não foi possivel cadastrar!!");
             $erro->Return();
