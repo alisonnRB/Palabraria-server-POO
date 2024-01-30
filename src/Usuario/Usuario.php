@@ -26,7 +26,7 @@ class Usuario
 
 
 
-        if ($this->getMethod() == 'POST' || $this->getMethod() == 'PUT') {
+        if ($this->getMethod() == 'POST') {
 
             if ($this->list[$this->getAuth()->tipo] >= 3) {
                 $erro = new Respost(200, false, 'Apenas o adm e moderadores podem cadastrar ou modificar usuários!!');

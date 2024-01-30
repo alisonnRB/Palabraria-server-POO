@@ -22,8 +22,6 @@ class Cadastro extends Login
             return false;
         } else if ($this->getUsuario()->getMethod() == 'POST') {
             $this->Create_user();
-        } else if ($this->getUsuario()->getMethod() == 'PUT') {
-        } else if ($this->getUsuario()->getMethod() == 'PATCH') {
         } else if ($this->getUsuario()->getMethod() == 'GET') {
             $this->search_user();
         } else if ($this->getUsuario()->getMethod() == 'DELETE') {

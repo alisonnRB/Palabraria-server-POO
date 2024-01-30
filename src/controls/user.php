@@ -18,7 +18,7 @@ $login = new Login(false, false, $token);
 $body = file_get_contents('php://input');
 $body = json_decode($body);
 
-if ($method == 'POST' || $method == 'PUT' || $method == 'PATCH') {
+if ($method == 'POST') {
     $user = new Usuario($method, $body->user, $body->senha, $body->permition, $login);
 } else if ($method == 'GET') {
     $user = new Usuario($method, null, null, null, $login, $_GET['id']);
