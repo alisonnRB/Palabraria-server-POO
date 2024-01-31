@@ -7,6 +7,11 @@ class Connection extends Respost
     protected $conect;
     private $state;
 
+    public function __construct()
+    {
+
+    }
+
     public function createConnection()
     {
         try {
@@ -24,7 +29,7 @@ class Connection extends Respost
         }
     }
 
-    protected function GetConect()
+    public function GetConect()
     {
         return $this->conect;
     }
