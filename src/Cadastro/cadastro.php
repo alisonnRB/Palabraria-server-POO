@@ -3,29 +3,35 @@
 
 include_once '../login/Login.php';
 include_once '../Usuario/Usuario.php';
+include_once '../Palavra/Palavra.php';
 
 class Cadastro extends Login
 {
-    protected $usuario;
-    public function __construct(Usuario $usuario = null)
+    protected $OBJ;
+    public function __construct($OBJ)
     {
         $this->createConnection();
 
-        if ($usuario instanceof Usuario) {
-            $this->setUsuario($usuario);
+        if ($OBJ instanceof Usuario) {
+            $this->setOBJ($OBJ);
+        }else if($OBJ instanceof Palavra){
+            $this->setOBJ($OBJ);
+        }else{
+            $erro = new Respost(200, false, 'erro');
+            $erro->Return();
         }
     }
 
     public function Decide_user()
     {
-        if (!$this->getUsuario()) {
+        if (!$this->getOBJ()) {
             return false;
-        } else if ($this->getUsuario()->getMethod() == 'POST') {
+        } else if ($this->getOBJ()->getMethod() == 'POST') {
             $this->Create_user();
-        } else if ($this->getUsuario()->getMethod() == 'GET') {
+        } else if ($this->getOBJ()->getMethod() == 'GET') {
             $this->search_user();
-        } else if ($this->getUsuario()->getMethod() == 'DELETE') {
-            $id = $this->getUsuario()->getId();
+        } else if ($this->getOBJ()->getMethod() == 'DELETE') {
+            $id = $this->getOBJ()->getId();
 
             $stmt = $this->conect->prepare("SELECT tipo FROM usuarios WHERE id = :id");
             $stmt->bindParam(':id', $id);
@@ -33,9 +39,9 @@ class Cadastro extends Login
             $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if (($stmt[0] && $stmt[0]['tipo'])) {
-                if ($this->getUsuario()->list[$this->getUsuario()->getAuth()->tipo] < $this->getUsuario()->list[$stmt[0]['tipo']]) {
+                if ($this->getOBJ()->list[$this->getOBJ()->getAuth()->tipo] < $this->getOBJ()->list[$stmt[0]['tipo']]) {
                     $this->delete_user();
-                } else if ($this->getUsuario()->list[$this->getUsuario()->getAuth()->tipo] == $this->getUsuario()->list[$stmt[0]['tipo']]) {
+                } else if ($this->getOBJ()->list[$this->getOBJ()->getAuth()->tipo] == $this->getOBJ()->list[$stmt[0]['tipo']]) {
                     $erro = new Respost(200, false, "Você não pode excluir alguem com mesmo nível!!");
                     $erro->Return();
                 } else {
@@ -46,13 +52,22 @@ class Cadastro extends Login
         }
     }
 
+    public function Decide_word()
+    {
+        if(!$this->getOBJ()){
+            return false;
+        }else if($this->getOBJ()->getMethod() == 'POST'){
+            $this->create_word();
+        }
+    }
+
     private function create_user()
     {
         try {
-            $nome = $this->getUsuario()->getUser();
-            $senha = $this->Code_pass($this->getUsuario()->getSenha());
-            $permition = $this->getUsuario()->getPermition();
-            $cadastrante = $this->getUsuario()->getAuth()->id;
+            $nome = $this->getOBJ()->getUser();
+            $senha = $this->Code_pass($this->getOBJ()->getSenha());
+            $permition = $this->getOBJ()->getPermition();
+            $cadastrante = $this->getOBJ()->getAuth()->id;
 
             $stmt = $this->conect->prepare("SELECT user FROM usuarios WHERE user = :user");
             $stmt->execute([":user" => $nome]);
@@ -80,9 +95,13 @@ class Cadastro extends Login
         }
     }
 
+    private function create_word(){
+
+    }
+
     private function search_user()
     {
-        if ($this->getUsuario()->getId() == 0) {
+        if ($this->getOBJ()->getId() == 0) {
             try {
                 $stmt = $this->conect->prepare('SELECT id, user, tipo FROM usuarios');
                 $stmt->execute();
@@ -102,7 +121,7 @@ class Cadastro extends Login
     private function delete_user()
     {
         try {
-            $id = $this->getUsuario()->getId();
+            $id = $this->getOBJ()->getId();
             $stmt = $this->conect->prepare("DELETE FROM usuarios WHERE id = :id");
             $stmt->bindParam(':id', $id);
             $stmt->execute();
@@ -124,13 +143,13 @@ class Cadastro extends Login
     }
 
 
-    private function getUsuario()
+    private function getOBJ()
     {
-        return $this->usuario;
+        return $this->OBJ;
     }
 
-    private function setUsuario(Usuario $usuario)
+    private function setOBJ($value)
     {
-        $this->usuario = $usuario;
+        $this->OBJ = $value;
     }
 }
