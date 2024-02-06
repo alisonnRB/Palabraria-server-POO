@@ -14,9 +14,9 @@ class Cadastro extends Login
 
         if ($OBJ instanceof Usuario) {
             $this->setOBJ($OBJ);
-        }else if($OBJ instanceof Palavra){
+        } else if ($OBJ instanceof Palavra) {
             $this->setOBJ($OBJ);
-        }else{
+        } else {
             $erro = new Respost(200, false, 'erro');
             $erro->Return();
         }
@@ -54,9 +54,9 @@ class Cadastro extends Login
 
     public function Decide_word()
     {
-        if(!$this->getOBJ()){
+        if (!$this->getOBJ()) {
             return false;
-        }else if($this->getOBJ()->getMethod() == 'POST'){
+        } else if ($this->getOBJ()->getMethod() == 'POST') {
             $this->create_word();
         }
     }
@@ -95,8 +95,91 @@ class Cadastro extends Login
         }
     }
 
-    private function create_word(){
+    private function create_word()
+    {
+        try {
+            $palavra = $this->getObj()->getformularios()->form1->ENpalavra;
+            $traducao = $this->getObj()->getformularios()->form1->PTpalavra;
+            $classificacao1 = $this->getObj()->getformularios()->form1->campo1;
+            $classificacao2 = $this->getObj()->getformularios()->form1->campo2;
+            $descricao = $this->getObj()->getformularios()->form1->descricao;
 
+            $consulta = "INSERT INTO palavras (palavra, traducao, descricao, classificacao1, classificacao2, cadastrante";
+            $itens = " VALUES (:palavra, :traducao, :descricao, :classificacao1, :classificacao2, :cadastrante";
+            $list = [
+                ':palavra' => $palavra,
+                ':traducao' => $traducao,
+                ':descricao' => $descricao,
+                ':classificacao1' => $classificacao1,
+                ':classificacao2' => $classificacao2,
+                ':cadastrante' => $this->getOBJ()->getAuth()->id
+            ];
+
+
+            $this->imagem_defined($consulta, $itens, $list);
+
+
+            if($this->getOBJ()->getformularios()->form3){
+                if($this->getOBJ()->getformularios()->form3->transcricao){
+                    $consulta = $consulta . ", transcricao";
+                    $itens = $itens .", :transcricao";
+                    $list[':transcricao'] = $this->getOBJ()->getformularios()->form3->transcricao;
+                }
+
+                if($this->getOBJ()->getformularios()->form3->expressao1){
+                    $consulta = $consulta . ", expressao1";
+                    $itens = $itens .  ", :expressao1";
+                    $list[':expressao1'] = $this->getOBJ()->getformularios()->form3->expressao1;
+                }
+
+                if($this->getOBJ()->getformularios()->form3->expressao2){
+                    $consulta = $consulta . ", expressao2";
+                    $itens = $itens . ", :expressao2";
+                    $list[':expressao2'] = $this->getOBJ()->getformularios()->form3->expressao2;
+                }
+
+                if($this->getOBJ()->getformularios()->form3->expressao3){
+                    $consulta = $consulta .", expressao3";
+                    $itens = $itens . ", :expressao3";
+                    $list[':expressao3'] = $this->getOBJ()->getformularios()->form3->expressao3;
+                }
+
+                if($this->getOBJ()->getformularios()->form3->expressao4){
+                    $consulta = $consulta . ", expressao4";
+                    $itens = $itens . ", :expressao4";
+                    $list[':expressao4'] = $this->getOBJ()->getformularios()->form3->expressao4;
+                }
+            }
+
+
+            $consulta = $consulta . ') ' . $itens . ')';
+
+            $stmt = $this->conect->prepare($consulta);
+            $stmt->execute($list);
+
+        } catch (PDOException $e) {
+            $erro = new Respost(200, false, $e);
+            $erro->Return();
+        }
+    }
+
+    protected function imagem_defined(&$consulta, &$itens, &$list)
+    {
+
+        $count = 0;
+
+        foreach ($this->getOBJ()->getformularios()->form2 as $image) {
+            $count += 1;
+            if ($image) {
+                
+                $name = $this->getOBJ()->SaveImage($image);
+
+                $consulta = $consulta . ', imagem' . $count;
+                $itens = $itens . ', :imagem' . $count;
+                $list[':imagem' . $count] = $name;
+
+            }
+        }
     }
 
     private function search_user()

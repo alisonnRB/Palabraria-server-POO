@@ -16,16 +16,33 @@ $method = $_SERVER['REQUEST_METHOD'];
 $token = str_replace('Bearer ', '', $token);
 $login = new Login(false, false, $token);
 
-// $erro = new Respost(200, false, $_POST['form1']);
-// $erro->Return();
+if ($_FILES) {
+    $images = (object) array();
+    foreach ($_FILES as $key => $value) {
+        $images->{$key} = $value;
+    }
+} else {
+    $images = false;
+}
 
-$list = array(
-    'form1' => $_POST['form1']
+if($_POST['form3']){
+    $form3 = json_decode($_POST['form3']);
+}else{
+    $form3 = false;
+}
+
+
+$list = (object) array(
+    'form1' => json_decode($_POST['form1']),
+    'form2' => $images,
+    'form3' => $form3
 );
+
 
 if ($method == 'POST') {
     $word = new Palavra($method, $list, $login);
 }
+
 
 $cadastro = new Cadastro($word);
 $cadastro->Decide_word();
