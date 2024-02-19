@@ -104,7 +104,13 @@ class Cadastro extends Login
             $classificacao2 = $this->getObj()->getformularios()->form1->campo2;
             $descricao = $this->getObj()->getformularios()->form1->descricao;
 
-            $consulta = "INSERT INTO palavras (palavra, traducao, descricao, classificacao1, classificacao2, cadastrante";
+            if($this->getOBJ()->getAuth()->tipo == 'instituicao'){
+                $table = 'palavras_mod';
+            }else{
+                $table = 'palavras';
+            }
+
+            $consulta = "INSERT INTO $table (palavra, traducao, descricao, classificacao1, classificacao2, cadastrante";
             $itens = " VALUES (:palavra, :traducao, :descricao, :classificacao1, :classificacao2, :cadastrante";
             $list = [
                 ':palavra' => $palavra,
@@ -156,6 +162,9 @@ class Cadastro extends Login
 
             $stmt = $this->conect->prepare($consulta);
             $stmt->execute($list);
+
+            $resposta = new Respost(200, true);
+            $resposta->Return();
 
         } catch (PDOException $e) {
             $erro = new Respost(200, false, $e);
