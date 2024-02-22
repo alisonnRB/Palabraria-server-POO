@@ -104,9 +104,9 @@ class Cadastro extends Login
             $classificacao2 = $this->getObj()->getformularios()->form1->campo2;
             $descricao = $this->getObj()->getformularios()->form1->descricao;
 
-            if($this->getOBJ()->getAuth()->tipo == 'instituicao'){
+            if ($this->getOBJ()->getAuth()->tipo == 'instituicao') {
                 $table = 'palavras_mod';
-            }else{
+            } else {
                 $table = 'palavras';
             }
 
@@ -121,36 +121,38 @@ class Cadastro extends Login
                 ':cadastrante' => $this->getOBJ()->getAuth()->id
             ];
 
+            if ($this->getOBJ()->getformularios()->form2) {
+                $this->imagem_defined($consulta, $itens, $list);
+            }
 
-            $this->imagem_defined($consulta, $itens, $list);
 
 
-            if($this->getOBJ()->getformularios()->form3){
-                if($this->getOBJ()->getformularios()->form3->transcricao){
+            if ($this->getOBJ()->getformularios()->form3) {
+                if ($this->getOBJ()->getformularios()->form3->transcricao) {
                     $consulta = $consulta . ", transcricao";
-                    $itens = $itens .", :transcricao";
+                    $itens = $itens . ", :transcricao";
                     $list[':transcricao'] = $this->getOBJ()->getformularios()->form3->transcricao;
                 }
 
-                if($this->getOBJ()->getformularios()->form3->expressao1){
+                if ($this->getOBJ()->getformularios()->form3->expressao1) {
                     $consulta = $consulta . ", expressao1";
-                    $itens = $itens .  ", :expressao1";
+                    $itens = $itens . ", :expressao1";
                     $list[':expressao1'] = $this->getOBJ()->getformularios()->form3->expressao1;
                 }
 
-                if($this->getOBJ()->getformularios()->form3->expressao2){
+                if ($this->getOBJ()->getformularios()->form3->expressao2) {
                     $consulta = $consulta . ", expressao2";
                     $itens = $itens . ", :expressao2";
                     $list[':expressao2'] = $this->getOBJ()->getformularios()->form3->expressao2;
                 }
 
-                if($this->getOBJ()->getformularios()->form3->expressao3){
-                    $consulta = $consulta .", expressao3";
+                if ($this->getOBJ()->getformularios()->form3->expressao3) {
+                    $consulta = $consulta . ", expressao3";
                     $itens = $itens . ", :expressao3";
                     $list[':expressao3'] = $this->getOBJ()->getformularios()->form3->expressao3;
                 }
 
-                if($this->getOBJ()->getformularios()->form3->expressao4){
+                if ($this->getOBJ()->getformularios()->form3->expressao4) {
                     $consulta = $consulta . ", expressao4";
                     $itens = $itens . ", :expressao4";
                     $list[':expressao4'] = $this->getOBJ()->getformularios()->form3->expressao4;
@@ -180,7 +182,7 @@ class Cadastro extends Login
         foreach ($this->getOBJ()->getformularios()->form2 as $image) {
             $count += 1;
             if ($image) {
-                
+
                 $name = $this->getOBJ()->SaveImage($image);
 
                 $consulta = $consulta . ', imagem' . $count;
