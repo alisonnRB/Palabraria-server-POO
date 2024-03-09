@@ -76,7 +76,7 @@ class Search extends Login
                 $bd = "palavras_mod";
             }
 
-            $stmt = $this->conect->prepare("SELECT id, palavra, traducao, descricao, imagem1, imagem2, imagem3, imagem4, imagem5, imagem6, transcricao, expressao1, expressao2, expressao3, expressao4 FROM $bd WHERE id = :id");
+            $stmt = $this->conect->prepare("SELECT id, palavra, traducao, descricao, imagem1, imagem2, imagem3, imagem4, imagem5, imagem6, transcricao, expressao1, expressao2, expressao3, expressao4, classificacao1, classificacao2 FROM $bd WHERE id = :id");
             $stmt->bindParam(':id', $index);
             $stmt->execute();
             $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
