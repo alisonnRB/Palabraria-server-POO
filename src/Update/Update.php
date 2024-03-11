@@ -7,12 +7,23 @@ class Update extends Login
 {
 
     protected $form;
+    protected $images;
 
-    public function __construct($form)
+    public function __construct($form, $images = false)
     {
         $this->createConnection();
         $this->setForm(json_decode($form));
-        $this->UpdatePavra();
+
+        if ($images) {
+            $this->setimages($images);
+        }
+
+        if ($this->getForm()->mode == 1) {
+            $this->UpdatePavra();
+        }else if($this->getForm()->mode == 2){
+            $this->UpdateImages();
+        }
+
     }
 
     protected function UpdatePavra()
@@ -46,6 +57,20 @@ class Update extends Login
         }
     }
 
+    protected function UpdateImages()
+    {
+        try{
+
+        }catch(PDOException $e){
+
+        }
+    }
+
+    private function serchImages()
+    {
+        
+    }
+
 
     public function getForm()
     {
@@ -55,6 +80,16 @@ class Update extends Login
     private function setForm($value)
     {
         $this->form = $value;
+    }
+
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+    private function setimages($value)
+    {
+        $this->images = $value;
     }
 
 
