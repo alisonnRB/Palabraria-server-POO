@@ -59,17 +59,25 @@ class Update extends Login
         $atuais = $this->serchImages();
         $id = $this->getForm()->id;
         $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
-        
+
         try {
 
             foreach ($this->getImages() as $key => $value) {
-                $nameForSave = $this->substitueIMage($atuais[$key], $value);
-                if($nameForSave){
-                    $stmt = $this->conect->prepare("UPDATE $bd SET $key = :imageName WHERE id = :id");
-                    $stmt->bindParam(':id', $id);
-                    $stmt->bindParam(':imageName', $nameForSave);
-                    $stmt->execute();
+                if ($this->isImageValid($value)) {
+
+                    $nameForSave = $this->substitueIMage($atuais[$key], $value);
+                    if ($nameForSave) {
+                        $stmt = $this->conect->prepare("UPDATE $bd SET $key = :imageName WHERE id = :id");
+                        $stmt->bindParam(':id', $id);
+                        $stmt->bindParam(':imageName', $nameForSave);
+                        $stmt->execute();
+                    }
+
+                } else {
+                    $res = new Respost(200, false, "imagem de formato inadequado");
+                    $res->Return();
                 }
+
             }
 
             $res = new Respost(200, true);
@@ -81,8 +89,6 @@ class Update extends Login
             $res->Return();
         }
     }
-
-    // criar verificação das imagens
 
     private function serchImages()
     {
@@ -125,11 +131,24 @@ class Update extends Login
 
         if (move_uploaded_file($actualValue['tmp_name'], $destinationPath)) {
             return $uniqueName . '.' . $extension;
-            
+
         } else {
             return false;
         }
     }
+
+    private function isImageValid($image)
+    {
+        $allowedMimeTypes = array('image/jpeg', 'image/jpg', 'image/png', 'image/PNG');
+        $fileMimeType = mime_content_type($image['tmp_name']);
+
+        if (!in_array($fileMimeType, $allowedMimeTypes)) {
+            return false;
+        }
+
+        return true;
+    }
+
 
 
     public function getForm()
