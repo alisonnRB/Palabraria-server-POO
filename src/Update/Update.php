@@ -19,14 +19,13 @@ class Update extends Login
         }
 
         if ($this->getForm()->mode == 1) {
-            $this->UpdatePavra();
-        }else if($this->getForm()->mode == 2){
+            $this->UpdatePalavra();
+        } else if ($this->getForm()->mode == 2) {
             $this->UpdateImages();
         }
-
     }
 
-    protected function UpdatePavra()
+    protected function UpdatePalavra()
     {
         try {
             $id = $this->getForm()->id;
@@ -49,8 +48,6 @@ class Update extends Login
 
             $erro = new Respost(200, true);
             $erro->Return();
-
-
         } catch (PDOException $e) {
             $erro = new Respost(200, false, "não foi possivel cadastrar!!");
             $erro->Return();
@@ -59,16 +56,77 @@ class Update extends Login
 
     protected function UpdateImages()
     {
-        try{
+        $atuais = $this->serchImages();
+        $id = $this->getForm()->id;
+        $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
+        
+        try {
 
-        }catch(PDOException $e){
+            foreach ($this->getImages() as $key => $value) {
+                $nameForSave = $this->substitueIMage($atuais[$key], $value);
+                if($nameForSave){
+                    $stmt = $this->conect->prepare("UPDATE $bd SET $key = :imageName WHERE id = :id");
+                    $stmt->bindParam(':id', $id);
+                    $stmt->bindParam(':imageName', $nameForSave);
+                    $stmt->execute();
+                }
+            }
 
+            $res = new Respost(200, true);
+            $res->Return();
+
+        } catch (PDOException $e) {
+
+            $res = new Respost(200, false, $e);
+            $res->Return();
         }
     }
 
     private function serchImages()
     {
-        
+        try {
+            $id = $this->getForm()->id;
+            $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
+
+            $stmt = $this->conect->prepare("SELECT imagem1, imagem2, imagem3, imagem4, imagem5, imagem6 FROM $bd WHERE id = :id");
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            $stmt = $stmt->fetch();
+
+            return $stmt;
+        } catch (PDOException $e) {
+
+            $res = new Respost(200, false, "server error");
+            $res->Return();
+        }
+    }
+
+    private function substitueIMage($pastValue, $actualValue)
+    {
+
+        $destinationFolder = '../drawble/palavras/';
+        if (!file_exists($destinationFolder)) {
+            mkdir($destinationFolder, 0777, true);
+        }
+
+        $uniqueName = uniqid('image_', true);
+        $extension = pathinfo($actualValue['name'], PATHINFO_EXTENSION);
+        $destinationPath = $destinationFolder . $uniqueName . '.' . $extension;
+
+        if ($pastValue) {
+            $caminhoAntigo = $destinationFolder . $pastValue;
+
+            if (file_exists($caminhoAntigo) && is_file($caminhoAntigo)) {
+                unlink($caminhoAntigo);
+            }
+        }
+
+        if (move_uploaded_file($actualValue['tmp_name'], $destinationPath)) {
+            return $uniqueName . '.' . $extension;
+            
+        } else {
+            return false;
+        }
     }
 
 
@@ -91,7 +149,4 @@ class Update extends Login
     {
         $this->images = $value;
     }
-
-
-
 }

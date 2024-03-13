@@ -16,5 +16,4 @@ if ($_FILES) {
     $images = false;
 }
 
-
 $update = new Update($_POST["form"], $images);
