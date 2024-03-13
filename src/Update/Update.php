@@ -9,9 +9,26 @@ class Update extends Login
     protected $form;
     protected $images;
 
-    public function __construct($form, $images = false)
+    public function __construct($form, $images = false, $method = "false")
     {
+
         $this->createConnection();
+
+
+        if ($method == "DELETE") {
+            $this->setForm($form);
+            $this->Dell();
+        } else if ($method == "PUT") {
+            $this->setForm($form);
+
+            if (!$this->getForm()["type"] == "unic") {
+                $this->Aprove();
+            } else {
+                $res = new Respost(200, false, "não autorizado");
+                $res->Return();
+            }
+        }
+
         $this->setForm(json_decode($form));
 
         if ($images) {
@@ -95,11 +112,17 @@ class Update extends Login
         }
     }
 
-    private function serchImages()
+    private function serchImages($json = false)
     {
         try {
-            $id = $this->getForm()->id;
-            $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
+            if ($json) {
+                $id = $this->getForm()["id"];
+                $bd = $this->getForm()["type"] == "unic" ? "palavras" : "palavras_mod";
+            } else {
+                $id = $this->getForm()->id;
+                $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
+            }
+
 
             $stmt = $this->conect->prepare("SELECT imagem1, imagem2, imagem3, imagem4, imagem5, imagem6 FROM $bd WHERE id = :id");
             $stmt->bindParam(":id", $id);
@@ -180,6 +203,67 @@ class Update extends Login
         } catch (PDOException $e) {
             $erro = new Respost(200, false, "não foi possivel cadastrar!!");
             $erro->Return();
+        }
+    }
+
+    protected function Dell()
+    {
+        try {
+
+            $this->DellImage();
+
+            $id = $this->getForm()["id"];
+            $bd = $this->getForm()["type"] == "unic" ? "palavras" : "palavras_mod";
+
+            $stmt = $this->conect->prepare("DELETE FROM $bd WHERE id = :id");
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+
+            $res = new Respost(200, true);
+            $res->Return();
+
+        } catch (PDOException $e) {
+            $res = new Respost(200, false, "erro do server");
+            $res->Return();
+        }
+    }
+
+    private function DellImage()
+    {
+        $images = $this->serchImages(true);
+        $destinationFolder = '../drawble/palavras/';
+
+
+        foreach ($images as $key => $value) {
+            $caminhoAntigo = $destinationFolder . $value;
+
+            if (file_exists($caminhoAntigo) && is_file($caminhoAntigo)) {
+                unlink($caminhoAntigo);
+            }
+        }
+    }
+
+    protected function Aprove()
+    {
+        try {
+            $id = $this->getForm()["id"];
+
+            $stmt = $this->conect->prepare("INSERT INTO palavras(palavra, traducao, descricao, imagem1, imagem2, imagem3, imagem4, imagem5, imagem6, classificacao1, classificacao2, transcricao, expressao1, expressao2, expressao3, expressao4, cadastrante) SELECT palavra, traducao, descricao, imagem1, imagem2, imagem3, imagem4, imagem5, imagem6, classificacao1, classificacao2, transcricao, expressao1, expressao2, expressao3, expressao4, cadastrante FROM palavras_mod WHERE id = :id");
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+
+            $stm = $this->conect->prepare("DELETE FROM palavras_mod WHERE id = :id");
+            $stm->bindParam(":id", $id);
+            $stm->execute();
+
+            $res = new Respost(200, true, "aproved");
+            $res->Return();
+
+        } catch (PDOException $e) {
+
+            $res = new Respost(200, false, "reproved");
+            $res->Return();
+
         }
     }
 
