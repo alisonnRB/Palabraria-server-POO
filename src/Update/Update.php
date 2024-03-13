@@ -22,6 +22,11 @@ class Update extends Login
             $this->UpdatePalavra();
         } else if ($this->getForm()->mode == 2) {
             $this->UpdateImages();
+        } else if ($this->getForm()->mode == 3) {
+            $this->UpdateOthers();
+        } else {
+            $res = new Respost(200, false, "não autorizado");
+            $res->Return();
         }
     }
 
@@ -149,6 +154,34 @@ class Update extends Login
         return true;
     }
 
+    protected function UpdateOthers()
+    {
+        try {
+            $id = $this->getForm()->id;
+            $transcricao = $this->getForm()->transcricao;
+            $expressao1 = $this->getForm()->expressao1;
+            $expressao2 = $this->getForm()->expressao2;
+            $expressao3 = $this->getForm()->expressao3;
+            $expressao4 = $this->getForm()->expressao4;
+            $bd = $this->getForm()->type == "unic" ? "palavras" : "palavras_mod";
+
+            $stmt = $this->conect->prepare("UPDATE $bd SET transcricao = :transcricao, expressao1 = :expressao1, expressao2 = :expressao2, expressao3 = :expressao3, expressao4 = :expressao4 WHERE id = :id");
+            $stmt->bindParam(":transcricao", $transcricao);
+            $stmt->bindParam(":expressao1", $expressao1);
+            $stmt->bindParam(":expressao2", $expressao2);
+            $stmt->bindParam(":expressao3", $expressao3);
+            $stmt->bindParam(":expressao4", $expressao4);
+            $stmt->bindParam(":id", $id);
+
+            $stmt->execute();
+
+            $erro = new Respost(200, true);
+            $erro->Return();
+        } catch (PDOException $e) {
+            $erro = new Respost(200, false, "não foi possivel cadastrar!!");
+            $erro->Return();
+        }
+    }
 
 
     public function getForm()
