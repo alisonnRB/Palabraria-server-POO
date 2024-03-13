@@ -82,6 +82,8 @@ class Update extends Login
         }
     }
 
+    // criar verificação das imagens
+
     private function serchImages()
     {
         try {
