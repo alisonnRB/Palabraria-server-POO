@@ -209,6 +209,33 @@ class Cadastro extends Login
                 $erro->Return();
             }
 
+        } else {
+            try {
+                $id = $this->getOBJ()->getId();
+                
+                $stmt = $this->conect->prepare('SELECT id, user, tipo FROM usuarios WHERE id = :id');
+                $stmt->bindParam(':id', $id);
+                $stmt->execute();
+                $stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $stm = $this->conect->prepare('SELECT * FROM palavras WHERE cadastrante = :id');
+                $stm->bindParam(':id', $id);
+                $stm->execute();
+                $stm = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+                $st = $this->conect->prepare('SELECT * FROM palavras_mod WHERE cadastrante = :id');
+                $st->bindParam(':id', $id);
+                $st->execute();
+                $st = $st->fetchAll(PDO::FETCH_ASSOC);
+
+
+                $erro = new Respost(200, true, [$stmt, $stm, $st]);
+                $erro->Return();
+
+            } catch (PDOException $e) {
+                $erro = new Respost(200, false, "não foi possivel Buscar!!");
+                $erro->Return();
+            }
         }
     }
 
