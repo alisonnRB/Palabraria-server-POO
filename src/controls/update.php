@@ -15,8 +15,8 @@ $token = $_SERVER['HTTP_AUTHORIZATION'];
 $token = str_replace('Bearer ', '', $token);
 $login = new Login(false, false, $token);
 
-if($login->getAuth()->tipo != "admin" || $login->getAuth()->tipo != "moder"){
-    $res = new Respost(200, false, "não autorizado");
+if($login->getAuth()->tipo != "admin" && $login->getAuth()->tipo != "moderador"){
+    $res = new Respost(200, false, "não autorizados");
     $res->Return();
 }
 
